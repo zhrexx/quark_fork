@@ -16,7 +16,7 @@ char* clname(int local_argc, char** local_argv) {
 	return *local_argv;
 }
 
-char clflag() {
+int clflag() {
 	if(!argc) return 0;
 	if(**argv == '-') {
 		argc--;

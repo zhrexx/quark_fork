@@ -203,6 +203,7 @@ typedef struct {
 	extends_Node;
 	str postfix;
 	Node* child;
+	unsigned no_wrap : 1;
 } Postfix;
 void comp_Postfix(Postfix*, str*, Compiler*);
 

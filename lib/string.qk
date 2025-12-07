@@ -3,19 +3,6 @@ T* extern memcpy<T>(T* dest, T* src, usize n);
 
 import lib::vector;
 
-struct Range {
-	usize start;
-	usize end;
-
-	Range new(usize start, usize end) {
-		return Range { start, end };
-	}
-
-	usize len(self) {
-		return self.end - self.start;
-	}
-}
-
 struct str {
 	Slice<char> slice;
 
@@ -33,7 +20,7 @@ struct String {
 
 	String from(str string) {
 		Vec<char> vector = Vec::new();
-		vector.push_slice(string.slice);
+		vector.push_many(string.slice);
 		return String { vector };
 	}
 
@@ -44,6 +31,6 @@ struct String {
 
 String str::to_owned(str self) {
 	String string = String::new();
-	string.vector.push_slice(self.slice);
+	string.vector.push_many(self.slice);
 	return string;
 }

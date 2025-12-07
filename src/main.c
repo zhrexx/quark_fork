@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 	CStrings input_files = { 0 };
 	char* output_file = "out.c";
 
-	char flag;
+	int flag;
 	while((flag = clflag())) switch(flag) {
 		case -1: 
 			push(&input_files, clarg());

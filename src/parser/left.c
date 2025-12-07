@@ -312,6 +312,51 @@ ret:
 			return dereference(expression, stretch(token.trace, expression->trace),
 					parser->tokenizer->messages);
 		}
+
+		case '[': {
+			NodeList values = collect_until(parser, &expression, ',', ']');
+
+			if(values.data && values.data[0]->flags & fType) {
+				Type* slice = (void*) eval("array type", "Slice", parser);
+				clash_types(slice->Wrapper.action.TypeList.data[0], (void*) values.data[0],
+						values.data[0]->trace, parser->tokenizer->messages, 0);
+				return (void*) slice;
+			}
+
+			strs field_names = { 0 };
+			Type* array_type = (void*) eval("auto", "auto", parser);
+
+			for(size_t i = 0; i < values.size; i++) {
+				clash_types(array_type, values.data[i]->type, values.data[i]->trace,
+						parser->tokenizer->messages, 0);
+				push(&field_names, (str) { 0 });
+			}
+
+			Node* slice = eval("array", "Slice {}", parser);
+			slice->StructLiteral.type->Wrapper.action.TypeList.data[0]->Wrapper.ref
+				= (void*) array_type;
+
+			Node* pointer = eval("array", "Range {}", parser);
+			*pointer->StructLiteral.type = (Node) { .Postfix = {
+				.compiler = (void*) &comp_Postfix,
+				.child = (void*) array_type,
+				.postfix = str("[]"),
+				.no_wrap = 1,
+			}}.Type;
+			pointer->StructLiteral.field_names = field_names;
+			pointer->StructLiteral.fields = values;
+
+			push(&slice->StructLiteral.fields, pointer);
+			push(&slice->StructLiteral.fields, new_node((Node) { .External = {
+						.compiler = (void*) &comp_External,
+						.data = strf(0, "%zu", values.size),
+			}}));
+
+			push(&slice->StructLiteral.field_names, (str) { 0 });
+			push(&slice->StructLiteral.field_names, (str) { 0 });
+
+			return slice;
+		}
 	}
 
 	push(parser->tokenizer->messages, Err(token.trace,

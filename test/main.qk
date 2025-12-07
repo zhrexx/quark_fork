@@ -1,3 +1,7 @@
-import lib::io;
+struct Slice<T> {}
 
-print("Hello World");
+struct Vec<T> {
+	void from(Slice<T> x) {}
+}
+
+Vec::from(Slice<i32> {});

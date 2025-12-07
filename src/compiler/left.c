@@ -117,7 +117,7 @@ void comp_Prefix(Prefix* self, str* line, Compiler* compiler) {
 }
 
 void comp_Postfix(Postfix* self, str* line, Compiler* compiler) {
-	strf(line, "(");
+	if(!self->no_wrap) strf(line, "(");
 	self->child->compiler(self->child, line, compiler);
-	strf(line, "%.*s)", (int) self->postfix.size, self->postfix.data);
+	strf(line, self->no_wrap ? "%.*s" : "%.*s)", (int) self->postfix.size, self->postfix.data);
 }

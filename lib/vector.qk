@@ -1,6 +1,19 @@
 T* extern malloc<T>(usize size);
 T* extern realloc<T>(T* ptr, usize size);
 
+struct Range {
+	usize start;
+	usize end;
+
+	Range new(usize start, usize end) {
+		return Range { start, end };
+	}
+
+	usize len(self) {
+		return self.end - self.start;
+	}
+}
+
 struct Slice<T> {
 	T* data;
 	usize size;
@@ -39,7 +52,7 @@ struct Vec<T> {
 		self->size = self->size + 1;
 	}
 
-	void push_slice(&self, Slice<T> slice) {
+	void push_many(&self, [T] slice) {
 		self->reserve(slice.size);
 
 		int i = 0;
@@ -48,6 +61,17 @@ struct Vec<T> {
 			self->size = self->size + 1;
 			i = i + 1;
 		}
+	}
+
+	Vec<T> from([T] slice) {
+		Vec<T> vec = Vec {
+			data: malloc(sizeof(T) * slice.size),
+			size: 0,
+			capacity: slice.size,
+		};
+		vec.push_many(slice);
+
+		return vec;
 	}
 
 	void pop(&self) {

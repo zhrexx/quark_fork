@@ -21,17 +21,27 @@ OpenedType open_type_wa(Type* type, Type* follower, int (*acceptor)(Type*, Type*
 
 int type_state_action(TypeStateAction action, unsigned flags) {
 	switch(action.type) {
-		case StateActionGenerics:
+		case StateActionGenerics: {
+			TypeList to_push = { 0 };
 			for(size_t i = 0; i < action.TypeList.size; i++) {
 				if(action.TypeList.data[i]->compiler == (void*) &comp_Wrapper
-						&& action.TypeList.data[i]->Wrapper.anchor
-						&& action.TypeList.data[i]->Wrapper.anchor->declaration
-						== (void*) action.target) {
-					return 0;
+						&& action.TypeList.data[i]->Wrapper.anchor) {
+						puts("here");
+					if(action.TypeList.data[i]->Wrapper.anchor->declaration
+							== (void*) action.target) {
+						printf("%p\n", action.target->Declaration.generics.stack.data[0]
+								.data[i]);
+						push(&to_push, action.target->Declaration.generics.stack.data[0]
+								.data[i]);
+					} else {
+						push(&to_push, (void*) action.TypeList.data[i]->Wrapper.anchor);
+					}
+				} else {
+					push(&to_push, action.TypeList.data[i]);
 				}
 			}
 
-			push(&action.target->Declaration.generics.stack, action.TypeList);
+			push(&action.target->Declaration.generics.stack, to_push);
 
 			static int noloop = 1;
 
@@ -49,6 +59,7 @@ int type_state_action(TypeStateAction action, unsigned flags) {
 			}
 
 			break;
+	  	}
 
 		case StateActionCollection:
 			for(size_t i = 0; i < action.TypeStateActions.size; i++) {
@@ -72,6 +83,7 @@ void undo_type_state_action(TypeStateAction action, unsigned flags) {
 
 	switch(action.type) {
 		case StateActionGenerics:
+			free(last(action.target->Declaration.generics.stack).data);
 			action.target->Declaration.generics.stack.size--;
 			break;
 
@@ -220,17 +232,19 @@ int traverse_type(Type* type, Type* follower, int (*acceptor)(Type*, Type*, void
 		result = traverse_type(otype.type->PointerType.base, ofollower.type
 				? ofollower.type->PointerType.base : NULL, acceptor, accumulator, flags);
 	} else if(otype.type->compiler == (void*) &comp_StructType) {
-		if(ofollower.type == otype.type && otype.type->StructType.parent->generics.stack.size) {
+		if(ofollower.type == otype.type
+				&& otype.type->StructType.parent->generics.stack.size) {
 			TypeList a = find_last_generic_action(otype.actions,
 					(void*) otype.type->StructType.parent);
 			TypeList b = find_last_generic_action(ofollower.actions,
 					(void*) otype.type->StructType.parent);
 
-			// printf("things: %zu %zu\n", a.size, b.size);
+			printf("things: %zu %zu\n", a.size, b.size);
 			if(!a.size) a = otype.type->StructType.parent->generics.stack.data[0];
 			if(!b.size) b = otype.type->StructType.parent->generics.stack.data[0];
 
 			for(size_t i = 0; i < a.size; i++) {
+			printf("%p\n", a.data[i]);
 				if((result = traverse_type(a.data[i], b.data[i], acceptor,
 								accumulator, flags)))
 					break;
