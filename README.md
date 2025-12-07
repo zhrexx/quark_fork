@@ -29,7 +29,5 @@ See source files in [lib/](lib/) for examples or the current [test file](test/ma
 ## Hello World
 
 ```quark
-import lib::io;
-
 print("Hello World");
 ```
