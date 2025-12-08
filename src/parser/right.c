@@ -183,8 +183,10 @@ Wrapper* declaration(Node* type, Token identifier, Parser* parser) {
 }
 
 Message see_declaration(Declaration* declaration, Node* node) {
-    return REPORT_INFO(declaration->trace, strf(0, "declaration of '\33[35m"STR_FMT"\33[0m'",
-                           STR_ARGS(node->trace.slice)));
+    if (!declaration) {
+        return REPORT_INFO((Trace){0}, str("declaration not found"));
+    }
+    return REPORT_INFO(declaration->trace, strf(0, "declaration of '\33[35m%.*s\33[0m'", (int)node->trace.slice.size, node->trace.slice.data));
 }
 
 Node* temp_value(Node* value, Parser* parser, unsigned* set_id) {
@@ -329,7 +331,6 @@ outer_while:
                 push(parser->tokenizer->messages, REPORT_ERR(lefthand->trace,
                          str("left hand of assignment is not a mutable value")));
             }
-            break;
         case RightCompare:
         case RightBinary: binary:
             {
@@ -435,8 +436,7 @@ outer_while:
                                  stretch(arguments.data[i]->trace, last(arguments)->trace),
                                  str("too many arguments in function call")));
                         push(parser->tokenizer->messages,
-                             see_declaration((void*) open_function_type
-                                 ->FunctionType.declaration, lefthand));
+                             see_declaration((Declaration*)open_function_type->FunctionType.declaration, lefthand));
                         break;
                     }
 
