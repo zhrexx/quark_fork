@@ -1,3 +1,7 @@
+T* extern malloc<T>(usize size);
+T* extern realloc<T>(T* ptr, usize size);
+
+// TODO: panics, allocator
 struct Vec<T> {
 	T* data;
 	usize size;

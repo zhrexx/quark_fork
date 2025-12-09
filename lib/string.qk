@@ -1,21 +1,15 @@
 usize extern strlen(char* str);
 T* extern memcpy<T>(T* dest, T* src, usize n);
 
-[str] _UnwrappedVector::error_messages;
-
 struct String {
-	_UnwrappedVector<char> vector;
+	Vec<char> vector;
 
 	String new() {
-		String self = String { _UnwrappedVector<char>::new() };
-
-
-		return self;
+		return String { Vec<char>::new() };
 	}
 
 	String from(str string) {
-		_UnwrappedVector<char> vector = _UnwrappedVector::new();
-
+		Vec<char> vector = Vec::new();
 		vector.push_many(string.slice);
 		return String { vector };
 	}

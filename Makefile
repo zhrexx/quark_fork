@@ -6,6 +6,9 @@ CFLAGS = -Wall -g -ggdb -Wno-missing-braces -Wno-char-subscripts
 build: $(SRCS)
 	$(CC) $(CFLAGS) src/main.c -o $(out)
 
+build-debug: $(SRCS)
+	$(CC) $(CFLAGS) src/main.c -o $(out)
+
 all: build
 
 test: build
